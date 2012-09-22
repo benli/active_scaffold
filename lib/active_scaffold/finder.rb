@@ -54,6 +54,21 @@ module ActiveScaffold
                   condition_for_datetime(column, value)
                 when :select, :multi_select, :country, :usa_state
                 ["#{column.search_sql} in (?)", Array(value)]
+                when :text_ranges
+                  cond = []
+                  cond_p = []
+                  value.gsub(/\s+-/, '-').gsub(/-\s+/, '-').split(' ').each { |range|
+                    vs = range.split('-', 2)
+                    if vs.length == 2
+                      cond << "(#{column.search_sql} >= ? and #{column.search_sql} <= ?)"
+                      cond_p << vs[0]
+                      cond_p << vs[1]
+                    else
+                      cond << "#{column.search_sql} = ?"
+                      cond_p << range
+                    end
+                  }
+                  cond.empty? ? [] : ["(#{cond.join(' or ')})"].concat(cond_p)
                 else
                   if column.column.nil? || column.column.text?
                     ["#{column.search_sql} #{ActiveScaffold::Finder.like_operator} ?", like_pattern.sub('?', value)]

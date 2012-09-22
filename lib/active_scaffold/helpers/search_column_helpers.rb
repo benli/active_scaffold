@@ -99,6 +99,11 @@ module ActiveScaffold
         text_field :record, column.name, active_scaffold_input_text_options(options)
       end
 
+      # support search on text fields with filters like 'A001-A100 A300 A400-A450'
+      def active_scaffold_search_text_ranges(column, options)
+        active_scaffold_search_text(column, options)
+      end
+
       # we can't use active_scaffold_input_boolean because we need to have a nil value even when column can't be null
       # to decide whether search for this field or not
       def active_scaffold_search_boolean(column, options)
